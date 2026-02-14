@@ -6,6 +6,7 @@ import {
     NavigationMenuList,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
 import ThemeSwitcher from "./theme-switcher";
 
 const routes = [
@@ -21,17 +22,23 @@ export default function Navbar() {
             <div className="container mx-auto flex h-14 items-center justify-between px-4">
                 <NavigationMenu>
                     <NavigationMenuList>
-                        {routes.map((route) => (
-                            <NavigationMenuItem key={route.path}>
-                                <NavigationMenuLink
-                                    asChild
-                                    className={navigationMenuTriggerStyle()}
-                                    data-active={location.pathname === route.path ? "" : undefined}
-                                >
-                                    <Link to={route.path}>{route.label}</Link>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                        ))}
+                        {routes.map((route) => {
+                            const isActive = location.pathname === route.path;
+                            return (
+                                <NavigationMenuItem key={route.path}>
+                                    <NavigationMenuLink
+                                        asChild
+                                        className={cn(
+                                            navigationMenuTriggerStyle(),
+                                            isActive && "bg-accent text-accent-foreground font-semibold"
+                                        )}
+                                        data-active={isActive ? "" : undefined}
+                                    >
+                                        <Link to={route.path}>{route.label}</Link>
+                                    </NavigationMenuLink>
+                                </NavigationMenuItem>
+                            );
+                        })}
                     </NavigationMenuList>
                 </NavigationMenu>
                 <ThemeSwitcher />
