@@ -1,11 +1,7 @@
-import { lazy, Suspense } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Suspense } from "react";
+import { Outlet } from "react-router-dom";
 import { ThemeProvider } from "../components/theme-provider";
 import Navbar from "../components/navbar";
-
-const HomePage = lazy(() => import("../pages/home.page"));
-const Conteo1Page = lazy(() => import("../pages/conteo1.page"));
-const ConjuntosPage = lazy(() => import("../pages/conjuntos.page"));
 
 export default function AppLayout() {
     return (
@@ -20,11 +16,7 @@ export default function AppLayout() {
                             </div>
                         }
                     >
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/conteo-1" element={<Conteo1Page />} />
-                            <Route path="/conjuntos" element={<ConjuntosPage />} />
-                        </Routes>
+                        <Outlet />
                     </Suspense>
                 </main>
             </div>
