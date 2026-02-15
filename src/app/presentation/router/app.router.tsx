@@ -1,9 +1,10 @@
+import { lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "../layout/app.layout";
-import HomePage from "../pages/home.page";
-import Conteo1Page from "../pages/conteo1.page";
-import ConjuntosPage from "../pages/conjuntos.page";
 
+const HomePage = lazy(() => import("../pages/home.page"));
+const Conteo1Page = lazy(() => import("../pages/conteo1.page"));
+const ConjuntosPage = lazy(() => import("../pages/conjuntos.page"));
 
 export default function AppRouter() {
     return (
