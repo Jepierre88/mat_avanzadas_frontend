@@ -1,7 +1,10 @@
 import { useTheme } from "@/app/presentation/components/theme-provider";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
 import { vscDarkPlus, oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import React from "react";
+
+SyntaxHighlighter.registerLanguage("python", python);
 
 interface CodeBlockProps {
   code: string;

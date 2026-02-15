@@ -16,7 +16,6 @@ const integrantes = [
 export default function HomePage() {
     return (
         <div className="flex flex-col items-center h-full px-4 py-8 gap-6">
-            {/* Hero */}
             <BlurFade delay={0.1} inView>
                 <div className="flex flex-col items-center text-center gap-3 max-w-xl mx-auto">
                     <div className="flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-3 py-1">
