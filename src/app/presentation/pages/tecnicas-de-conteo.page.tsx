@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowDown } from "lucide-react";
 
 import DiceRoller, { type DiceRollerHandle } from "../components/dice-roller";
 import { AuroraText } from "@/components/ui/aurora-text";
@@ -14,6 +15,7 @@ type DiceRollerResult = {
 export default function TecnicasDeConteoPage() {
     const [lastRoll, setLastRoll] = useState<DiceRollerResult | null>(null);
     const diceRef = useRef<DiceRollerHandle | null>(null);
+    const activityRef = useRef<HTMLElement | null>(null);
     const [diceReady, setDiceReady] = useState(false);
     const [diceRolling, setDiceRolling] = useState(false);
     const didAutoRollRef = useRef(false);
@@ -38,8 +40,15 @@ export default function TecnicasDeConteoPage() {
         void diceRef.current?.roll();
     }, [diceReady]);
 
+    const scrollToActivity = () => {
+        activityRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    };
+
     return (
-        <div className="h-full w-full overflow-y-auto overflow-x-hidden snap-y snap-mandatory">
+        <div className="h-full w-full overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth">
             <section className="relative isolate h-full snap-start overflow-hidden border-b">
                 <div className="absolute inset-0 -z-20">
                     <DiceRoller
@@ -70,6 +79,21 @@ export default function TecnicasDeConteoPage() {
                     </div>
                 </div>
 
+                <div className="absolute bottom-6 right-6 z-20">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={scrollToActivity}
+                        aria-label="Ir a la actividad"
+                        className="h-auto flex-col gap-1 rounded-full border border-border/60 bg-background/40 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/30"
+                    >
+                        <span className="text-xs font-semibold tracking-wide text-muted-foreground">
+                            Actividad
+                        </span>
+                        <ArrowDown className="h-5 w-5 text-muted-foreground animate-bounce" />
+                    </Button>
+                </div>
+
                 <div className="mx-auto flex h-full w-full max-w-7xl flex-col items-center justify-center px-4 py-16 text-center">
                     <div className="rounded-full border border-border bg-secondary/30 px-3 py-1 text-[11px] font-medium tracking-wide text-secondary-foreground">
                         Técnicas de Conteo
@@ -97,7 +121,7 @@ export default function TecnicasDeConteoPage() {
                 </div>
             </section>
 
-            <section className="h-full snap-start">
+            <section ref={activityRef} className="h-full snap-start">
                 <div className="mx-auto flex h-full w-full max-w-7xl flex-col px-4 py-10">
                     <Card className="flex flex-1 flex-col">
                         <CardHeader className="py-4">
