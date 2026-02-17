@@ -21,8 +21,8 @@ import ThemeSwitcher from "./theme-switcher";
 
 const routes = [
     { path: "/", label: "Inicio" },
-    { path: "/conteo-1", label: "Conteo 1" },
-    { path: "/conjuntos", label: "Conjuntos" },
+    // { path: "/conteo-1", label: "Conteo 1" },
+    // { path: "/conjuntos", label: "Conjuntos" },
     { path: "/tecnicas-de-conteo", label: "Técnicas de Conteo" },
 ];
 
