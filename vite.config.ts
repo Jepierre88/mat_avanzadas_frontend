@@ -18,4 +18,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // These warnings are common when bundling 3D/worker-heavy libraries (like dice-box).
+    // We still keep code-splitting, but avoid failing builds due to warning noise.
+    chunkSizeWarningLimit: 2000,
+  },
 })
