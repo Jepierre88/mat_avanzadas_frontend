@@ -159,3 +159,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* DiceBox (@3d-dice/dice-box) does not ship sizing styles.
+   Without these, the canvas keeps its default 300x150 and the 3D world
+   only uses the top-left fraction of the intended container. */
+.dice-box-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
