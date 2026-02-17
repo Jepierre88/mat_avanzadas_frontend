@@ -5,10 +5,22 @@ import { useEffect, useMemo, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 
-export default function DiceRoller() {
+type DiceResult = Awaited<ReturnType<DiceBox["roll"]>>[number]
+
+type DiceRollerResult = {
+  d1: number
+  d2: number
+}
+
+interface DiceRollerProps {
+  onResult?: (result: DiceRollerResult) => void
+}
+
+export default function DiceRoller({ onResult }: DiceRollerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const diceBoxRef = useRef<DiceBox | null>(null)
   const [ready, setReady] = useState(false)
+  const [rolling, setRolling] = useState(false)
 
   const themeColor = useMemo(() => {
     if (typeof window === "undefined") return undefined
@@ -35,7 +47,8 @@ export default function DiceRoller() {
       const container = containerRef.current
       if (container) container.innerHTML = ""
 
-      const box = new DiceBox("#dice-container", {
+      const box = new DiceBox({
+        container: "#dice-container",
         assetPath: "/assets/",
         theme: "default",
         themeColor,
@@ -65,9 +78,24 @@ export default function DiceRoller() {
     }
   }, [themeColor])
 
-  const handleRoll = () => {
-    if (ready && diceBoxRef.current) {
-      diceBoxRef.current.roll("2d6", { themeColor })
+  const handleRoll = async () => {
+    if (!ready || !diceBoxRef.current || rolling) return
+
+    try {
+      setRolling(true)
+      const result = await diceBoxRef.current.roll("2d6", {
+        themeColor,
+      })
+      console.log("Dice roll result:", result)
+
+      const [d1, d2] = (result as DiceResult[]).map((d) => d.value)
+      if (typeof d1 === "number" && typeof d2 === "number") {
+        onResult?.({ d1, d2 })
+      } else {
+        console.warn("Unexpected dice result shape:", result)
+      }
+    } finally {
+      setRolling(false)
     }
   }
 
@@ -85,10 +113,10 @@ export default function DiceRoller() {
           ></div>
         </div>
 
-        <div className="mt-3 flex w-full justify-center">
-        <Button onClick={handleRoll} disabled={!ready}>
-          {ready ? "Roll Dice" : "Loading..."}
-        </Button>
+        <div className="mt-3 flex w-full flex-col items-center gap-2">
+          <Button onClick={handleRoll} disabled={!ready || rolling}>
+            {!ready ? "Loading..." : rolling ? "Rolling..." : "Roll Dice"}
+          </Button>
         </div>
       </div>
     </>
