@@ -44,7 +44,7 @@ export default function HomePage() {
                     </p>
 
                     <Button asChild size="sm" className="gap-2 rounded-full px-5">
-                        <Link to="/conteo-1">
+                        <Link to="/tecnicas-de-conteo">
                             Comenzar
                             <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
