@@ -1,7 +1,16 @@
 
 import DiceBox from "@3d-dice/dice-box"
 import "@3d-dice/dice-box/dist/style.css"
-import { useEffect, useMemo, useRef, useState } from "react"
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 
 import { Button } from "@/components/ui/button"
 
@@ -12,15 +21,42 @@ type DiceRollerResult = {
   d2: number
 }
 
-interface DiceRollerProps {
-  onResult?: (result: DiceRollerResult) => void
+export type DiceRollerHandle = {
+  roll: () => Promise<void>
+  ready: boolean
+  rolling: boolean
 }
 
-export default function DiceRoller({ onResult }: DiceRollerProps) {
+interface DiceRollerProps {
+  onResult?: (result: DiceRollerResult) => void
+
+  onStateChange?: (state: { ready: boolean; rolling: boolean }) => void
+
+  showButton?: boolean
+  buttonLabel?: string
+  height?: number | string
+  framed?: boolean
+  className?: string
+}
+
+const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
+  (
+    {
+      onResult,
+      onStateChange,
+      showButton = true,
+      buttonLabel = "Roll Dice",
+      height = 520,
+      framed = true,
+      className,
+    },
+    ref
+  ) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const diceBoxRef = useRef<DiceBox | null>(null)
   const [ready, setReady] = useState(false)
   const [rolling, setRolling] = useState(false)
+  const containerId = useId()
 
   const themeColor = useMemo(() => {
     if (typeof window === "undefined") return undefined
@@ -48,7 +84,7 @@ export default function DiceRoller({ onResult }: DiceRollerProps) {
       if (container) container.innerHTML = ""
 
       const box = new DiceBox({
-        container: "#dice-container",
+        container: `#${containerId}`,
         assetPath: "/assets/",
         theme: "default",
         themeColor,
@@ -78,7 +114,11 @@ export default function DiceRoller({ onResult }: DiceRollerProps) {
     }
   }, [themeColor])
 
-  const handleRoll = async () => {
+  useEffect(() => {
+    onStateChange?.({ ready, rolling })
+  }, [onStateChange, ready, rolling])
+
+  const handleRoll = useCallback(async () => {
     if (!ready || !diceBoxRef.current || rolling) return
 
     try {
@@ -97,28 +137,47 @@ export default function DiceRoller({ onResult }: DiceRollerProps) {
     } finally {
       setRolling(false)
     }
-  }
+  }, [onResult, ready, rolling, themeColor])
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      roll: handleRoll,
+      ready,
+      rolling,
+    }),
+    [handleRoll, ready, rolling]
+  )
+
+  const resolvedHeight = typeof height === "number" ? `${height}px` : height
 
   return (
     <>
-      <div className="w-full">
+      <div className={className ?? "w-full"}>
         <div
-          className="relative w-full overflow-hidden rounded-xl border border-primary/30 bg-primary/5"
-          style={{ height: "520px" }}
+          className={
+            framed
+              ? "relative w-full overflow-hidden rounded-xl border border-primary/30 bg-primary/5"
+              : "relative w-full overflow-hidden"
+          }
+          style={{ height: resolvedHeight }}
         >
-          <div
-            ref={containerRef}
-            id="dice-container"
-            className="relative h-full w-full"
-          ></div>
+          <div ref={containerRef} id={containerId} className="relative h-full w-full"></div>
         </div>
 
-        <div className="mt-3 flex w-full flex-col items-center gap-2">
-          <Button onClick={handleRoll} disabled={!ready || rolling}>
-            {!ready ? "Loading..." : rolling ? "Rolling..." : "Roll Dice"}
-          </Button>
-        </div>
+        {showButton ? (
+          <div className="mt-3 flex w-full flex-col items-center gap-2">
+            <Button onClick={handleRoll} disabled={!ready || rolling}>
+              {!ready ? "Loading..." : rolling ? "Rolling..." : buttonLabel}
+            </Button>
+          </div>
+        ) : null}
       </div>
     </>
   )
-}
+  }
+)
+
+DiceRoller.displayName = "DiceRoller"
+
+export default DiceRoller

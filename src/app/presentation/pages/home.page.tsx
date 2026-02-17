@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Users, GraduationCap, BookOpen } from "lucide-react";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { BorderBeam } from "@/components/ui/border-beam";
-import DiceRoller from "../components/dice-roller";
 
 const integrantes = [
     { nombre: "Jean Pierre Ortiz", iniciales: "JP" },
@@ -50,7 +49,6 @@ export default function HomePage() {
                             <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                     </Button>
-                    <DiceRoller />
                 </div>
             </BlurFade>
 
