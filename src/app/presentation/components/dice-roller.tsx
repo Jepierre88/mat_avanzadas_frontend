@@ -16,21 +16,36 @@ import { Button } from "@/components/ui/button"
 
 type DiceResult = Awaited<ReturnType<DiceBox["roll"]>>[number]
 
-type DiceRollerResult = {
+export type DiceRollerResult = {
   d1: number
   d2: number
 }
 
+export type DiceRollerRoll = {
+  dice: string
+  values: number[]
+}
+
 export type DiceRollerHandle = {
-  roll: () => Promise<void>
+  roll: (diceOverride?: string) => Promise<void>
   ready: boolean
   rolling: boolean
 }
 
 interface DiceRollerProps {
+  /** Legacy callback for 2d6-style usage (kept for backward compatibility). */
   onResult?: (result: DiceRollerResult) => void
 
+  /** Generic callback for any dice/quantity. */
+  onRoll?: (result: DiceRollerRoll) => void
+
   onStateChange?: (state: { ready: boolean; rolling: boolean }) => void
+
+  /** Dice notation like "2d6", "4d8", "1d20". */
+  dice?: string
+  /** Convenience: if provided with sides, builds dice as `${count}d${sides}` (ignored when dice is set). */
+  count?: number
+  sides?: number
 
   showButton?: boolean
   buttonLabel?: string
@@ -44,7 +59,11 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
   (
     {
       onResult,
+      onRoll,
       onStateChange,
+      dice,
+      count,
+      sides,
       showButton = true,
       buttonLabel = "Roll Dice",
       height = 520,
@@ -74,6 +93,14 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
     ctx.fillStyle = color
     return String(ctx.fillStyle)
   }, [])
+
+  const resolvedDice = useMemo(() => {
+    if (typeof dice === "string" && dice.trim() !== "") return dice.trim()
+    if (typeof count === "number" && typeof sides === "number" && count > 0 && sides > 0) {
+      return `${count}d${sides}`
+    }
+    return "2d6"
+  }, [count, dice, sides])
 
   useEffect(() => {
     let cancelled = false
@@ -127,26 +154,31 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
     onStateChange?.({ ready, rolling })
   }, [onStateChange, ready, rolling])
 
-  const handleRoll = useCallback(async () => {
+  const handleRoll = useCallback(async (diceOverride?: string) => {
     if (!ready || !diceBoxRef.current || rolling) return
+
+    const usedDice = typeof diceOverride === "string" && diceOverride.trim() !== ""
+      ? diceOverride.trim()
+      : resolvedDice
 
     try {
       setRolling(true)
-      const result = await diceBoxRef.current.roll("2d6", {
+      const result = await diceBoxRef.current.roll(usedDice, {
         themeColor,
       })
       console.log("Dice roll result:", result)
 
-      const [d1, d2] = (result as DiceResult[]).map((d) => d.value)
-      if (typeof d1 === "number" && typeof d2 === "number") {
-        onResult?.({ d1, d2 })
-      } else {
-        console.warn("Unexpected dice result shape:", result)
+      const values = (result as DiceResult[]).map((d) => d.value).filter((v) => typeof v === "number")
+      onRoll?.({ dice: usedDice, values })
+
+      // Legacy 2-value callback.
+      if (values.length >= 2) {
+        onResult?.({ d1: values[0], d2: values[1] })
       }
     } finally {
       setRolling(false)
     }
-  }, [onResult, ready, rolling, themeColor])
+  }, [onResult, onRoll, ready, resolvedDice, rolling, themeColor])
 
   useImperativeHandle(
     ref,
@@ -176,7 +208,7 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
 
         {showButton ? (
           <div className="mt-3 flex w-full flex-col items-center gap-2">
-            <Button onClick={handleRoll} disabled={!ready || rolling}>
+            <Button onClick={() => void handleRoll()} disabled={!ready || rolling}>
               {!ready ? "Loading..." : rolling ? "Rolling..." : buttonLabel}
             </Button>
           </div>
