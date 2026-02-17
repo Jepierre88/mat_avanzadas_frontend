@@ -35,6 +35,7 @@ interface DiceRollerProps {
   showButton?: boolean
   buttonLabel?: string
   height?: number | string
+  scale?: number
   framed?: boolean
   className?: string
 }
@@ -47,6 +48,7 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       showButton = true,
       buttonLabel = "Roll Dice",
       height = 520,
+      scale,
       framed = true,
       className,
     },
@@ -83,6 +85,13 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       const container = containerRef.current
       if (container) container.innerHTML = ""
 
+      const containerWidth =
+        container?.getBoundingClientRect().width ??
+        (typeof window !== "undefined" ? window.innerWidth : 1024)
+
+      const autoScale = Math.max(12, Math.min(20, Math.round(containerWidth / 34)))
+      const resolvedScale = typeof scale === "number" ? scale : autoScale
+
       const box = new DiceBox({
         container: `#${containerId}`,
         assetPath: "/assets/",
@@ -90,7 +99,7 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
         themeColor,
         gravity: 9.81,
         strength: 1,
-        scale: 20,
+        scale: resolvedScale,
         lightIntensity: 1,
         throwForce: 1,
       })
@@ -112,7 +121,7 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       setReady(false)
       diceBoxRef.current = null
     }
-  }, [themeColor])
+  }, [containerId, scale, themeColor])
 
   useEffect(() => {
     onStateChange?.({ ready, rolling })

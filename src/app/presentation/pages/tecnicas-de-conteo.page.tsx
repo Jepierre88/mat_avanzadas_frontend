@@ -111,10 +111,10 @@ export default function TecnicasDeConteoPage() {
                             disabled={!diceReady || diceRolling}
                         >
                             {!diceReady
-                                ? "Loading..."
+                                ? "Cargando..."
                                 : diceRolling
-                                  ? "Rolling..."
-                                  : "Rodar Dados"}
+                                  ? "Lanzando..."
+                                  : "Lanzar Dados"}
                         </Button>
                     </div>
 
