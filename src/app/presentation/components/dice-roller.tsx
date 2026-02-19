@@ -102,6 +102,11 @@ interface DiceRollerProps {
   /** When true and rolling 2d6, roll two distinguishable dice: Azul (primary) and Rojo (destructive). */
   distinguishable?: boolean
 
+  /** Custom color for die A (first die) when distinguishable mode is on. Defaults to DICE_COLOR_BLUE. */
+  diceColorA?: string
+  /** Custom color for die B (second die) when distinguishable mode is on. Defaults to DICE_COLOR_RED. */
+  diceColorB?: string
+
   showButton?: boolean
   buttonLabel?: string
   height?: number | string
@@ -120,6 +125,8 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       count,
       sides,
       distinguishable = false,
+      diceColorA,
+      diceColorB,
       showButton = true,
       buttonLabel = "Roll Dice",
       height = 520,
@@ -138,9 +145,9 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
   const primaryThemeColor = useMemo(() => cssVarToHex("--primary"), [])
   const destructiveThemeColor = useMemo(() => cssVarToHex("--destructive"), [])
 
-  // Vivid colors for distinguishable dice – theme vars are too muted for 3D objects
-  const VIVID_BLUE = "#1E90FF"
-  const VIVID_RED  = "#E53935"
+  // Vivid colors for distinguishable dice – use props or fallback to exported constants
+  const VIVID_BLUE = diceColorA ?? DICE_COLOR_BLUE
+  const VIVID_RED  = diceColorB ?? DICE_COLOR_RED
 
   const resolvedDice = useMemo(() => {
     if (typeof dice === "string" && dice.trim() !== "") return dice.trim()
@@ -209,8 +216,10 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       ? diceOverride.trim()
       : resolvedDice
 
-    const isTwoD6 = usedDice === "2d6"
-    const shouldUseDistinctDice = distinguishable && isTwoD6 && !diceOverride
+    const parsedDice = usedDice.match(/^(\d+)d(\d+)$/i)
+    const diceSides = parsedDice ? parseInt(parsedDice[2]) : 6
+    const diceCount = parsedDice ? parseInt(parsedDice[1]) : 2
+    const shouldUseDistinctDice = distinguishable && diceCount === 2 && !diceOverride
 
     try {
       setRolling(true)
@@ -219,8 +228,8 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
         try {
           result = await diceBoxRef.current.roll(
             [
-              { qty: 1, sides: 6, themeColor: distinguishable ? VIVID_BLUE : primaryThemeColor }, // Azul
-              { qty: 1, sides: 6, themeColor: distinguishable ? VIVID_RED : destructiveThemeColor }, // Rojo
+              { qty: 1, sides: diceSides, themeColor: VIVID_BLUE },
+              { qty: 1, sides: diceSides, themeColor: VIVID_RED },
             ],
             { newStartPoint: true }
           )
@@ -246,8 +255,8 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       if (values.length >= 2) {
         if (shouldUseDistinctDice) {
           const normalize = (c?: string) => (c ?? "").trim().toLowerCase().replace(/\s+/g, "")
-          const blueTarget = distinguishable ? VIVID_BLUE : primaryThemeColor
-          const redTarget = distinguishable ? VIVID_RED : destructiveThemeColor
+          const blueTarget = VIVID_BLUE
+          const redTarget = VIVID_RED
           const blue = (result as DiceResult[]).find(
             (d) => normalize(d.themeColor as string | undefined) === normalize(blueTarget)
           )
