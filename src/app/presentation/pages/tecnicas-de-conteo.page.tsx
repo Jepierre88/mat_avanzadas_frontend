@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowDown } from "lucide-react";
 
-import DiceRoller, { type DiceRollerHandle } from "../components/dice-roller";
+import DiceRoller, { DICE_COLOR_BLUE, DICE_COLOR_RED, type DiceRollerHandle } from "../components/dice-roller";
 import { AuroraText } from "@/components/ui/aurora-text";
 
 type DiceRollerResult = {
@@ -68,22 +68,22 @@ export default function TecnicasDeConteoPage() {
 
                 <div className="pointer-events-none absolute inset-0 -z-10 select-none">
                     <div className="absolute inset-0 bg-linear-to-b from-background/90 via-background/70 to-background/90 dark:from-background/55 dark:via-background/25 dark:to-background/55" />
-                    <div className="absolute inset-0 grid place-items-center">
+                    <div className="absolute inset-x-0 top-0 flex justify-center pt-4">
                         <div className="flex items-center gap-10 opacity-10 sm:gap-16">
                             <div className="flex flex-col items-center gap-2">
-                                <div className="text-[10px] font-semibold tracking-wide text-primary">
+                                <div className="text-[10px] font-semibold tracking-wide" style={{ color: DICE_COLOR_BLUE }}>
                                     {bg.left}
                                 </div>
-                                <div className="text-[96px] font-black leading-none tracking-tighter text-foreground sm:text-[140px] md:text-[200px]">
-                                    {lastRoll ? String(lastRoll.d1) : "—"}
+                                <div className="text-[96px] font-black leading-none tracking-tighter sm:text-[140px] md:text-[200px]" style={{ color: DICE_COLOR_BLUE }}>
+                                    {lastRoll ? String(lastRoll.d1) : "?"}
                                 </div>
                             </div>
                             <div className="flex flex-col items-center gap-2">
-                                <div className="text-[10px] font-semibold tracking-wide text-destructive">
+                                <div className="text-[10px] font-semibold tracking-wide" style={{ color: DICE_COLOR_RED }}>
                                     {bg.right}
                                 </div>
-                                <div className="text-[96px] font-black leading-none tracking-tighter text-foreground sm:text-[140px] md:text-[200px]">
-                                    {lastRoll ? String(lastRoll.d2) : "—"}
+                                <div className="text-[96px] font-black leading-none tracking-tighter sm:text-[140px] md:text-[200px]" style={{ color: DICE_COLOR_RED }}>
+                                    {lastRoll ? String(lastRoll.d2) : "?"}
                                 </div>
                             </div>
                         </div>

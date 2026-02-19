@@ -64,6 +64,10 @@ function cssVarToHex(varName: string): string | undefined {
 
 type DiceResult = Awaited<ReturnType<DiceBox["roll"]>>[number]
 
+/** Default vivid dice colors – exported so consumers can reuse them. */
+export const DICE_COLOR_BLUE = "#1E90FF"
+export const DICE_COLOR_RED  = "#E53935"
+
 export type DiceRollerResult = {
   d1: number
   d2: number
@@ -160,7 +164,7 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
         container?.getBoundingClientRect().width ??
         (typeof window !== "undefined" ? window.innerWidth : 1024)
 
-      const autoScale = Math.max(12, Math.min(20, Math.round(containerWidth / 34)))
+      const autoScale = Math.max(6, Math.min(10, Math.round(containerWidth / 60)))
       const resolvedScale = typeof scale === "number" ? scale : autoScale
 
       const box = new DiceBox({
