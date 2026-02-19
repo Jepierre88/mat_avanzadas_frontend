@@ -6,6 +6,7 @@ import { DiceActivitySection } from "./components/dice-activity-section";
 import { DiceHeroSection } from "./components/dice-hero-section";
 import { type DiceRollerResult } from "./config/dice-config.types";
 import { useDiceConfig } from "./hooks/use-dice-config";
+import { useExerciseView } from "./hooks/use-exercise-view";
 
 export default function TecnicasDeConteoPage() {
     const [lastRoll, setLastRoll] = useState<DiceRollerResult | null>(null);
@@ -17,6 +18,7 @@ export default function TecnicasDeConteoPage() {
 
     const [sheetOpen, setSheetOpen] = useState(false);
     const { config, updateConfig, resetConfig, isDistinct, diceNotation } = useDiceConfig();
+    const { view, loading: viewLoading, error: viewError, statement } = useExerciseView();
 
     /* Auto-roll on first load */
     useEffect(() => {
@@ -51,7 +53,13 @@ export default function TecnicasDeConteoPage() {
                 onScrollToActivity={scrollToActivity}
             />
 
-            <DiceActivitySection ref={activityRef} />
+            <DiceActivitySection
+                ref={activityRef}
+                view={view}
+                statement={statement}
+                loading={viewLoading}
+                error={viewError}
+            />
         </div>
     );
 }
