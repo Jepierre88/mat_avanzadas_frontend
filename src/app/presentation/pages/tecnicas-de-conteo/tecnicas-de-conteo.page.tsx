@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 
 import { type DiceRollerHandle } from "../../components/dice-roller";
 
-import { DiceActivitySection } from "./dice-activity-section";
-import { DiceHeroSection } from "./dice-hero-section";
-import { type DiceRollerResult } from "./dice-config.types";
-import { useDiceConfig } from "./use-dice-config";
+import { DiceActivitySection } from "./components/dice-activity-section";
+import { DiceHeroSection } from "./components/dice-hero-section";
+import { type DiceRollerResult } from "./config/dice-config.types";
+import { useDiceConfig } from "./hooks/use-dice-config";
 
 export default function TecnicasDeConteoPage() {
     const [lastRoll, setLastRoll] = useState<DiceRollerResult | null>(null);

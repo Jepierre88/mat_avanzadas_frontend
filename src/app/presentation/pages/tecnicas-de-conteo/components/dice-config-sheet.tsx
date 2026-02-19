@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { RotateCcw, Settings2 } from "lucide-react";
 
-import { SIDES_OPTIONS, type DiceConfig } from "./dice-config.types";
+import { SIDES_OPTIONS, type DiceConfig } from "../config/dice-config.types";
 
 interface DiceConfigSheetProps {
     open: boolean;

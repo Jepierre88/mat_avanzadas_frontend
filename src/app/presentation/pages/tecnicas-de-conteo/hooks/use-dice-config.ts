@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { DEFAULT_CONFIG, type DiceConfig } from "./dice-config.types";
+import { DEFAULT_CONFIG, type DiceConfig } from "../config/dice-config.types";
 
 export function useDiceConfig() {
     const [config, setConfig] = useState<DiceConfig>(DEFAULT_CONFIG);

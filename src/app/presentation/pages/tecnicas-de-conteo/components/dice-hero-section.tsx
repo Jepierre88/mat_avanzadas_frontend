@@ -3,12 +3,12 @@ import { type RefObject, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 
-import DiceRoller, { type DiceRollerHandle } from "../../components/dice-roller";
+import DiceRoller, { type DiceRollerHandle } from "../../../components/dice-roller";
 import { AuroraText } from "@/components/ui/aurora-text";
 
 import { DiceConfigSheet } from "./dice-config-sheet";
 import { DiceHeroOverlay } from "./dice-hero-overlay";
-import { darkenHex, type DiceConfig, type DiceRollerResult } from "./dice-config.types";
+import { darkenHex, type DiceConfig, type DiceRollerResult } from "../config/dice-config.types";
 
 interface DiceHeroSectionProps {
     diceRef: RefObject<DiceRollerHandle | null>;

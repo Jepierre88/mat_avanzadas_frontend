@@ -1,4 +1,4 @@
-import type { DiceRollerResult } from "./dice-config.types";
+import type { DiceRollerResult } from "../config/dice-config.types";
 
 interface DiceHeroOverlayProps {
     isDistinct: boolean;

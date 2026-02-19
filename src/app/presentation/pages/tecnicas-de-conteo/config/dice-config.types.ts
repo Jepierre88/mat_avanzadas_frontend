@@ -1,4 +1,4 @@
-import { DICE_COLOR_BLUE, DICE_COLOR_RED } from "../../components/dice-roller";
+import { DICE_COLOR_BLUE, DICE_COLOR_RED } from "../../../components/dice-roller";
 
 /* ─── Types ─── */
 
