@@ -274,7 +274,8 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
     } finally {
       setRolling(false)
     }
-  }, [distinguishable, destructiveThemeColor, onResult, onRoll, primaryThemeColor, ready, resolvedDice, rolling])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [VIVID_BLUE, VIVID_RED, distinguishable, destructiveThemeColor, onResult, onRoll, primaryThemeColor, ready, resolvedDice, rolling])
 
   useImperativeHandle(
     ref,
