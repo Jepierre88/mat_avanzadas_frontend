@@ -134,6 +134,10 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
   const primaryThemeColor = useMemo(() => cssVarToHex("--primary"), [])
   const destructiveThemeColor = useMemo(() => cssVarToHex("--destructive"), [])
 
+  // Vivid colors for distinguishable dice – theme vars are too muted for 3D objects
+  const VIVID_BLUE = "#1E90FF"
+  const VIVID_RED  = "#E53935"
+
   const resolvedDice = useMemo(() => {
     if (typeof dice === "string" && dice.trim() !== "") return dice.trim()
     if (typeof count === "number" && typeof sides === "number" && count > 0 && sides > 0) {
@@ -211,8 +215,8 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
         try {
           result = await diceBoxRef.current.roll(
             [
-              { qty: 1, sides: 6, themeColor: primaryThemeColor }, // Azul
-              { qty: 1, sides: 6, themeColor: destructiveThemeColor }, // Rojo
+              { qty: 1, sides: 6, themeColor: distinguishable ? VIVID_BLUE : primaryThemeColor }, // Azul
+              { qty: 1, sides: 6, themeColor: distinguishable ? VIVID_RED : destructiveThemeColor }, // Rojo
             ],
             { newStartPoint: true }
           )
@@ -238,11 +242,13 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       if (values.length >= 2) {
         if (shouldUseDistinctDice) {
           const normalize = (c?: string) => (c ?? "").trim().toLowerCase().replace(/\s+/g, "")
+          const blueTarget = distinguishable ? VIVID_BLUE : primaryThemeColor
+          const redTarget = distinguishable ? VIVID_RED : destructiveThemeColor
           const blue = (result as DiceResult[]).find(
-            (d) => normalize(d.themeColor as string | undefined) === normalize(primaryThemeColor)
+            (d) => normalize(d.themeColor as string | undefined) === normalize(blueTarget)
           )
           const red = (result as DiceResult[]).find(
-            (d) => normalize(d.themeColor as string | undefined) === normalize(destructiveThemeColor)
+            (d) => normalize(d.themeColor as string | undefined) === normalize(redTarget)
           )
 
           const d1 = typeof blue?.value === "number" ? blue.value : values[0]

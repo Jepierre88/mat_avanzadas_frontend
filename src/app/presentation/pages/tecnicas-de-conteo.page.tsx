@@ -112,10 +112,10 @@ export default function TecnicasDeConteoPage() {
 
                     <AuroraText
                         colors={[
-                            "oklch(0.65 0.27 270)",   /* azul – primary */
-                            "oklch(0.55 0.24 265)",   /* azul oscuro */
-                            "oklch(0.70 0.19 22)",    /* rojo – destructive */
-                            "oklch(0.58 0.24 27)",    /* rojo oscuro */
+                            "#1E90FF",  /* azul vivo */
+                            "#0D47A1",  /* azul profundo */
+                            "#E53935",  /* rojo vivo */
+                            "#B71C1C",  /* rojo profundo */
                         ]}
                         className="mt-4 text-5xl font-black tracking-tight sm:text-7xl lg:text-8xl"
                     >
