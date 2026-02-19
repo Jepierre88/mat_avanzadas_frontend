@@ -30,6 +30,20 @@ export interface ParamDescriptor {
     description: string;
 }
 
+/* ── Walkthrough (paso a paso) ── */
+
+export interface WalkthroughStep {
+    lines: number[];
+    title: string;
+    explanation: string;
+    variables: Record<string, string>;
+}
+
+export interface Walkthrough {
+    code: string;
+    steps: WalkthroughStep[];
+}
+
 /* ── Permutación Simple ── */
 
 export interface PermutacionSimpleParams {

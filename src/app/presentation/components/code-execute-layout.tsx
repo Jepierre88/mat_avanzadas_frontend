@@ -1,7 +1,10 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CodeBlock } from "@/components/ui/codeblock";
+import { CodeStepper } from "@/components/ui/code-stepper";
+import { Button } from "@/components/ui/button";
+import type { Walkthrough } from "@/app/domain/types/api.types";
 
 interface CodeExecuteLayoutProps {
     title: string;
@@ -12,6 +15,7 @@ interface CodeExecuteLayoutProps {
     codeDescription?: ReactNode;
     code: string | null | undefined;
     codeLanguage?: string;
+    walkthrough?: Walkthrough | null;
 
     executeTitle?: string;
     executeDescription?: ReactNode;
@@ -28,11 +32,14 @@ export default function CodeExecuteLayout({
     codeDescription = "Código real usado en el backend.",
     code,
     codeLanguage = "python",
+    walkthrough,
     executeTitle = "Ejecución",
     executeDescription,
     execute,
     footer,
 }: CodeExecuteLayoutProps) {
+    const [stepperActive, setStepperActive] = useState(false);
+
     return (
         <div className="w-full px-4 py-6 lg:h-full">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 lg:h-full">
@@ -55,13 +62,28 @@ export default function CodeExecuteLayout({
                 <div className="grid grid-cols-1 gap-6 lg:flex-1 lg:min-h-0 lg:grid-cols-12">
                     <Card className="flex flex-col overflow-hidden lg:min-h-0 lg:col-span-7">
                         <CardHeader className="py-4">
-                            <CardTitle className="text-lg">{codeTitle}</CardTitle>
-                            <CardDescription className="text-xs">
-                                {codeDescription}
-                            </CardDescription>
+                            <div className="flex items-center justify-between gap-2">
+                                <div>
+                                    <CardTitle className="text-lg">{codeTitle}</CardTitle>
+                                    <CardDescription className="text-xs">
+                                        {codeDescription}
+                                    </CardDescription>
+                                </div>
+                                {walkthrough && (
+                                    <Button
+                                        size="sm"
+                                        variant={stepperActive ? "secondary" : "default"}
+                                        onClick={() => setStepperActive((v) => !v)}
+                                    >
+                                        {stepperActive ? "✕ Cerrar tour" : "▶ Paso a paso"}
+                                    </Button>
+                                )}
+                            </div>
                         </CardHeader>
                         <CardContent className="overflow-visible lg:flex-1 lg:min-h-0 lg:overflow-auto">
-                            {code ? (
+                            {stepperActive && walkthrough ? (
+                                <CodeStepper walkthrough={walkthrough} />
+                            ) : code ? (
                                 <CodeBlock
                                     code={code}
                                     language={codeLanguage}

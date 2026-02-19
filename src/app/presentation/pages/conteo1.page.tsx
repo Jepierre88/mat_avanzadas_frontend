@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { permutacionSimpleApi } from "@/app/infrastructure/services/permutacion-simple.service";
-import type { ViewResponse, PermutacionSimpleResult } from "@/app/domain/types/api.types";
+import type { ViewResponse, PermutacionSimpleResult, Walkthrough } from "@/app/domain/types/api.types";
 import CodeExecuteLayout from "@/app/presentation/components/code-execute-layout";
 
 export default function Conteo1Page() {
@@ -20,6 +20,12 @@ export default function Conteo1Page() {
     useEffect(() => {
         permutacionSimpleApi.getView().then(setView);
     }, []);
+
+    /* Extract walkthrough if present */
+    const walkthrough: Walkthrough | null =
+        view && typeof view.walkthrough === "object" && view.walkthrough !== null
+            ? (view.walkthrough as Walkthrough)
+            : null;
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -58,6 +64,7 @@ export default function Conteo1Page() {
             }
             code={view?.code}
             codeLanguage="python"
+            walkthrough={walkthrough}
             executeTitle="Ejecución"
             executeDescription="Ingresa un valor para n y ejecuta."
             footer="Powered by Python • Flask API"
