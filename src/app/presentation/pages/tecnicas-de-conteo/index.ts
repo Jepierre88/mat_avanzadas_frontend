@@ -1,0 +1,1 @@
+export { default } from "./tecnicas-de-conteo.page";
