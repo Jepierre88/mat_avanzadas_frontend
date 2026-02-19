@@ -14,6 +14,54 @@ import {
 
 import { Button } from "@/components/ui/button"
 
+/**
+ * Resolve a CSS custom-property (e.g. "--primary") to a hex color string
+ * that canvas / dice-box can consume, regardless of the colour format
+ * stored in the stylesheet (oklch, hsl, rgb, hex …).
+ */
+function cssVarToHex(varName: string): string | undefined {
+  if (typeof window === "undefined") return undefined
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue(varName)
+    .trim()
+  if (!raw) return undefined
+
+  const canvas = document.createElement("canvas")
+  canvas.width = canvas.height = 1
+  const ctx = canvas.getContext("2d")
+  if (!ctx) return undefined
+
+  // sentinel: lets us detect whether the browser accepted the value
+  const SENTINEL = "#03fca5"
+  ctx.fillStyle = SENTINEL
+
+  // 1. Try the raw value as-is (handles oklch, hsl(), rgb(), hex, etc.)
+  ctx.fillStyle = raw
+  if (ctx.fillStyle !== SENTINEL) return ctx.fillStyle
+
+  // 2. Bare HSL numbers (e.g. "222 47% 11%") – legacy shadcn themes
+  ctx.fillStyle = SENTINEL
+  ctx.fillStyle = `hsl(${raw})`
+  if (ctx.fillStyle !== SENTINEL) return ctx.fillStyle
+
+  // 3. Last resort: use a temporary DOM element (browser always resolves to rgb)
+  const el = document.createElement("div")
+  el.style.display = "none"
+  el.style.color = raw
+  document.body.appendChild(el)
+  const resolved = getComputedStyle(el).color
+  el.remove()
+  const rgbMatch = resolved.match(/rgba?\(\s*([\d.]+),?\s*([\d.]+),?\s*([\d.]+)/)
+  if (rgbMatch) {
+    const r = Math.round(parseFloat(rgbMatch[1]))
+    const g = Math.round(parseFloat(rgbMatch[2]))
+    const b = Math.round(parseFloat(rgbMatch[3]))
+    return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`
+  }
+
+  return undefined
+}
+
 type DiceResult = Awaited<ReturnType<DiceBox["roll"]>>[number]
 
 export type DiceRollerResult = {
@@ -47,6 +95,9 @@ interface DiceRollerProps {
   count?: number
   sides?: number
 
+  /** When true and rolling 2d6, roll two distinguishable dice: Azul (primary) and Rojo (destructive). */
+  distinguishable?: boolean
+
   showButton?: boolean
   buttonLabel?: string
   height?: number | string
@@ -64,6 +115,7 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       dice,
       count,
       sides,
+      distinguishable = false,
       showButton = true,
       buttonLabel = "Roll Dice",
       height = 520,
@@ -79,20 +131,8 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
   const [rolling, setRolling] = useState(false)
   const containerId = useId()
 
-  const themeColor = useMemo(() => {
-    if (typeof window === "undefined") return undefined
-    const primary = getComputedStyle(document.documentElement)
-      .getPropertyValue("--primary")
-      .trim()
-    if (!primary) return undefined
-
-    const color = primary.startsWith("hsl(") ? primary : `hsl(${primary})`
-    const canvas = document.createElement("canvas")
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return undefined
-    ctx.fillStyle = color
-    return String(ctx.fillStyle)
-  }, [])
+  const primaryThemeColor = useMemo(() => cssVarToHex("--primary"), [])
+  const destructiveThemeColor = useMemo(() => cssVarToHex("--destructive"), [])
 
   const resolvedDice = useMemo(() => {
     if (typeof dice === "string" && dice.trim() !== "") return dice.trim()
@@ -123,7 +163,7 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
         container: `#${containerId}`,
         assetPath: "/assets/",
         theme: "default",
-        themeColor,
+        themeColor: primaryThemeColor,
         gravity: 9.81,
         strength: 1,
         scale: resolvedScale,
@@ -148,7 +188,7 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       setReady(false)
       diceBoxRef.current = null
     }
-  }, [containerId, scale, themeColor])
+  }, [containerId, primaryThemeColor, scale])
 
   useEffect(() => {
     onStateChange?.({ ready, rolling })
@@ -161,24 +201,61 @@ const DiceRoller = forwardRef<DiceRollerHandle, DiceRollerProps>(
       ? diceOverride.trim()
       : resolvedDice
 
+    const isTwoD6 = usedDice === "2d6"
+    const shouldUseDistinctDice = distinguishable && isTwoD6 && !diceOverride
+
     try {
       setRolling(true)
-      const result = await diceBoxRef.current.roll(usedDice, {
-        themeColor,
-      })
+      let result: DiceResult[]
+      if (shouldUseDistinctDice) {
+        try {
+          result = await diceBoxRef.current.roll(
+            [
+              { qty: 1, sides: 6, themeColor: primaryThemeColor }, // Azul
+              { qty: 1, sides: 6, themeColor: destructiveThemeColor }, // Rojo
+            ],
+            { newStartPoint: true }
+          )
+        } catch {
+          // Fallback to non-distinct roll if the notation isn't supported by the runtime library.
+          result = await diceBoxRef.current.roll(usedDice, {
+            themeColor: primaryThemeColor,
+          })
+        }
+      } else {
+        result = await diceBoxRef.current.roll(usedDice, {
+          themeColor: primaryThemeColor,
+        })
+      }
       console.log("Dice roll result:", result)
 
-      const values = (result as DiceResult[]).map((d) => d.value).filter((v) => typeof v === "number")
+      const values = (result as DiceResult[])
+        .map((d) => d.value)
+        .filter((v) => typeof v === "number")
       onRoll?.({ dice: usedDice, values })
 
       // Legacy 2-value callback.
       if (values.length >= 2) {
-        onResult?.({ d1: values[0], d2: values[1] })
+        if (shouldUseDistinctDice) {
+          const normalize = (c?: string) => (c ?? "").trim().toLowerCase().replace(/\s+/g, "")
+          const blue = (result as DiceResult[]).find(
+            (d) => normalize(d.themeColor as string | undefined) === normalize(primaryThemeColor)
+          )
+          const red = (result as DiceResult[]).find(
+            (d) => normalize(d.themeColor as string | undefined) === normalize(destructiveThemeColor)
+          )
+
+          const d1 = typeof blue?.value === "number" ? blue.value : values[0]
+          const d2 = typeof red?.value === "number" ? red.value : values[1]
+          onResult?.({ d1, d2 })
+        } else {
+          onResult?.({ d1: values[0], d2: values[1] })
+        }
       }
     } finally {
       setRolling(false)
     }
-  }, [onResult, onRoll, ready, resolvedDice, rolling, themeColor])
+  }, [distinguishable, destructiveThemeColor, onResult, onRoll, primaryThemeColor, ready, resolvedDice, rolling])
 
   useImperativeHandle(
     ref,

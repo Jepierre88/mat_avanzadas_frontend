@@ -23,8 +23,8 @@ export default function TecnicasDeConteoPage() {
     const bg = useMemo(() => {
         if (!lastRoll) {
             return {
-                left: "D1",
-                right: "D2",
+                left: "Azul",
+                right: "Rojo",
             };
         }
 
@@ -58,6 +58,7 @@ export default function TecnicasDeConteoPage() {
                             setDiceReady(ready);
                             setDiceRolling(rolling);
                         }}
+                        distinguishable
                         showButton={false}
                         framed={false}
                         height="100%"
@@ -66,14 +67,24 @@ export default function TecnicasDeConteoPage() {
                 </div>
 
                 <div className="pointer-events-none absolute inset-0 -z-10 select-none">
-                    <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/70 to-background/90 dark:from-background/55 dark:via-background/25 dark:to-background/55" />
+                    <div className="absolute inset-0 bg-linear-to-b from-background/90 via-background/70 to-background/90 dark:from-background/55 dark:via-background/25 dark:to-background/55" />
                     <div className="absolute inset-0 grid place-items-center">
                         <div className="flex items-center gap-10 opacity-10 sm:gap-16">
-                            <div className="text-[96px] font-black leading-none tracking-tighter text-foreground sm:text-[140px] md:text-[200px]">
-                                {bg.left}
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="text-[10px] font-semibold tracking-wide text-primary">
+                                    {bg.left}
+                                </div>
+                                <div className="text-[96px] font-black leading-none tracking-tighter text-foreground sm:text-[140px] md:text-[200px]">
+                                    {lastRoll ? String(lastRoll.d1) : "—"}
+                                </div>
                             </div>
-                            <div className="text-[96px] font-black leading-none tracking-tighter text-foreground sm:text-[140px] md:text-[200px]">
-                                {bg.right}
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="text-[10px] font-semibold tracking-wide text-destructive">
+                                    {bg.right}
+                                </div>
+                                <div className="text-[96px] font-black leading-none tracking-tighter text-foreground sm:text-[140px] md:text-[200px]">
+                                    {lastRoll ? String(lastRoll.d2) : "—"}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -85,7 +96,7 @@ export default function TecnicasDeConteoPage() {
                         variant="ghost"
                         onClick={scrollToActivity}
                         aria-label="Ir a la actividad"
-                        className="h-auto flex-col gap-1 rounded-full border border-border/60 bg-background/40 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/30"
+                        className="h-auto flex-col gap-1 rounded-full border border-border/60 bg-background/40 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/30"
                     >
                         <span className="text-xs font-semibold tracking-wide text-muted-foreground">
                             Actividad
@@ -99,7 +110,15 @@ export default function TecnicasDeConteoPage() {
                         Técnicas de Conteo
                     </div>
 
-                    <AuroraText className="mt-4 text-5xl font-black tracking-tight text-primary sm:text-7xl lg:text-8xl">
+                    <AuroraText
+                        colors={[
+                            "oklch(0.65 0.27 270)",   /* azul – primary */
+                            "oklch(0.55 0.24 265)",   /* azul oscuro */
+                            "oklch(0.70 0.19 22)",    /* rojo – destructive */
+                            "oklch(0.58 0.24 27)",    /* rojo oscuro */
+                        ]}
+                        className="mt-4 text-5xl font-black tracking-tight sm:text-7xl lg:text-8xl"
+                    >
                         DADOS
                     </AuroraText>
 
