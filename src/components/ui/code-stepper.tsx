@@ -113,9 +113,29 @@ export function CodeStepper({ walkthrough, className = "" }: CodeStepperProps) {
     };
 
     const variableEntries = step ? Object.entries(step.variables) : [];
+    const testParamEntries = Object.entries(walkthrough.test_params ?? {});
 
     return (
         <div className={`flex flex-col gap-3 ${className}`}>
+            {/* ── Test params banner ── */}
+            {testParamEntries.length > 0 && (
+                <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+                    <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
+                        Datos de prueba:
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                        {testParamEntries.map(([key, val]) => (
+                            <span
+                                key={key}
+                                className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2 py-0.5 font-mono text-xs font-semibold text-amber-800 dark:text-amber-300"
+                            >
+                                {key} = {String(val)}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* ── Code viewer ── */}
             <div className="overflow-auto rounded-xl border shadow-sm">
                 <SyntaxHighlighter

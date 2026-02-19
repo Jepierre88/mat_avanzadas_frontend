@@ -42,6 +42,8 @@ export interface WalkthroughStep {
 export interface Walkthrough {
     code: string;
     steps: WalkthroughStep[];
+    /** Valores de prueba usados en el tour */
+    test_params: Record<string, string | number>;
 }
 
 /* ── Permutación Simple ── */
